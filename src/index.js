@@ -2,7 +2,7 @@
 const fs = require('fs');
 const R = require('ramda');
 const glob = require('glob');
-const babel = require('babel-core');
+const babel = require('@babel/core');
 
 process.env.NODE_ENV = 'production'; // For babel.transform
 
@@ -12,21 +12,30 @@ function extract(
 ) /* : string */ {
   const srcPaths = glob.sync(pattern, { absolute: true });
   const relativeSrcPaths = glob.sync(pattern);
-  const contents = srcPaths.map(p => fs.readFileSync(p, 'utf-8'));
+  const contents = srcPaths.map(p => [p, fs.readFileSync(p, 'utf-8')]);
   const reqBabelPlugins = babelPlugins.map(b =>
-    require.resolve(`babel-plugin-${b}`)
+    require.resolve(`@babel/plugin-${b}`)
   );
   const messages = contents
-    .map(content =>
-      babel.transform(content, {
+    .map(([filename, content]) => [filename, content.replace('<>', '<div>')])
+    .map(([filename, content]) => [filename, content.replace('</>', '</div>')])
+    .map(([filename, content]) => {
+      let filteredContent = content.slice();
+      filteredContent = filteredContent.replace('<>', '<div>');
+      filteredContent = filteredContent.replace('(<>', '(<div>');
+      filteredContent = filteredContent.replace('</>', '</div>');
+      filteredContent = filteredContent.replace('</>)', '</div>)');
+
+      return babel.transform(filteredContent, {
+        filename,
         presets: [require.resolve('babel-preset-react-app')],
         plugins: [
           require.resolve('babel-plugin-react-intl'),
           ...reqBabelPlugins,
         ],
         babelrc: false,
-      })
-    )
+      });
+    })
     .map(R.path(['metadata', 'react-intl', 'messages']));
 
   const result = R.zipWith(
