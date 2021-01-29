@@ -22,8 +22,11 @@ class App extends Component {
           <FormattedMessage
             id="App.message"
             defaultMessage={`Hello {name}, you have {unreadCount, number} {unreadCount, plural, one {message} other {messages}}`}
-            values={{ name: <b>{name}</b>, unreadCount }}
+            values={{ name: <>{name}</>, unreadCount }}
           />
+          <>
+            <>nested react fragment shorthand</>
+          </>
         </p>
       </div>
     );

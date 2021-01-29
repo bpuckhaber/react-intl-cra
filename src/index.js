@@ -17,14 +17,17 @@ function extract(
     require.resolve(`@babel/plugin-${b}`)
   );
   const messages = contents
-    .map(([filename, content]) => [filename, content.replace('<>', '<div>')])
-    .map(([filename, content]) => [filename, content.replace('</>', '</div>')])
+    .map(([filename, content]) => [filename, content.replace(/<>/g, '<div>')])
+    .map(([filename, content]) => [
+      filename,
+      content.replace(/<\/>/g, '</div>'),
+    ])
     .map(([filename, content]) => {
       let filteredContent = content.slice();
-      filteredContent = filteredContent.replace('<>', '<div>');
-      filteredContent = filteredContent.replace('(<>', '(<div>');
-      filteredContent = filteredContent.replace('</>', '</div>');
-      filteredContent = filteredContent.replace('</>)', '</div>)');
+      filteredContent = filteredContent.replace(/<>/g, '<div>');
+      filteredContent = filteredContent.replace(/\(<>/g, '(<div>');
+      filteredContent = filteredContent.replace(/<\/>/g, '</div>');
+      filteredContent = filteredContent.replace(/<\/>\)/g, '</div>)');
 
       return babel.transform(filteredContent, {
         filename,
