@@ -30,7 +30,7 @@
     "chalk": "^2.3.0",
     "glob": "^7.1.2",
     "ramda": "^0.25.0",
-    "yargs": "^11.0.0"
+    "yargs": "^13.3.2"
   },
   "devDependencies": {
     "babel-eslint": "9.0.0",
